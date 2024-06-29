@@ -11,6 +11,9 @@ const powerChart = ref<EChartsType>()
 const totalUsed = ref<string>()
 const surplusDay = ref<number>()
 const restElectricity = ref<string>()
+const currentTab = ref<string>('one')
+const dateRange = ref<string[]>([dayjs().format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')])
+const currentDate = ref<string>(dayjs().format('YYYY-MM-DD'))
 const option = reactive<any>({
   grid: {
     top: '10px',
@@ -90,7 +93,6 @@ const option = reactive<any>({
 
 function updateHouseInfo() {
   queryHouseInfo().then(resp => {
-    console.log(resp)
     surplusDay.value = resp.data.data.records[0].surplusDay
     restElectricity.value = resp.data.data.records[0].meterAddForms[0].residualElectricity
   })
@@ -124,6 +126,11 @@ onMounted(() => {
   loadData(dayjs().format('YYYY-MM-DD'))
   timerId = setInterval(() => {
     updateHouseInfo()
+    if (currentTab.value === 'one') {
+      loadData(currentDate.value)
+    } else {
+      loadData(dateRange.value[0], dateRange.value[1])
+    }
   }, 120000)
 });
 
@@ -133,9 +140,7 @@ onBeforeUnmount(() => {
 })
 
 
-const currentTab = ref<string>('one')
-const dateRange = ref<string[]>([dayjs().format('YYYY-MM-DD'), dayjs().format('YYYY-MM-DD')])
-const currentDate = ref<string>(dayjs().format('YYYY-MM-DD'))
+
 
 function tabChange(name: string) {
   powerChart.value?.dispose()
